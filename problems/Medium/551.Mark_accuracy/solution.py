@@ -1,6 +1,7 @@
 import sys
 from math import gcd
 from typing import List, Tuple
+from collections import defaultdict
 
 
 def cacl_similarity(
@@ -10,19 +11,21 @@ def cacl_similarity(
 ) -> Tuple[int, int]:
 
     q = n * (n - 1) // 2
-    p = 0
+    p = q
 
-    p_dict = {i: set() for i in set(pseq)}
-    v_dict = {j: set() for j in set(vseq)}
+    p_count = defaultdict(int)
+    v_count = defaultdict(int)
+    pv_count = defaultdict(int)
 
-    for i, (pe, va) in enumerate(zip(pseq, vseq)):
-        fi, se = p_dict[pe], v_dict[va]
-        inter = len(fi & se)
-        voided = i - (len(fi) + len(se) - inter)
-        p += voided + inter
-    
-        p_dict[pe].add(i)
-        v_dict[va].add(i)
+    for i in range(n):
+        p_class, v_class = pseq[i], vseq[i]
+
+        p -= p_count[p_class] - pv_count[(p_class, v_class)]
+        p -= v_count[v_class] - pv_count[(p_class, v_class)]
+
+        p_count[p_class] += 1
+        v_count[v_class] += 1
+        pv_count[(p_class, v_class)] += 1
 
     common = gcd(p, q)
 
